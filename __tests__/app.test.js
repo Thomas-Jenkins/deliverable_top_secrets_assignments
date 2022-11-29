@@ -23,7 +23,7 @@ describe('users test routes', () => {
     return setup(pool);
   });
 
-  it('creates a new user', async  () => {
+  it('POST creates a new user', async  () => {
     const res = await request(app).post('/api/v1/topSecret/users').send(mockUser);
     const { email } = mockUser;
     
@@ -33,10 +33,19 @@ describe('users test routes', () => {
     });
   });
 
-  it('checks if a user can sign up and log in', async () => {
+  it('POST checks if a user can sign up and log in', async () => {
     const [agent] = await signUpAndLogin();
     const temp = await agent.post('/api/v1/topSecret/users/sessions').send(mockUser);
     expect(temp.body.message).toEqual('Successfully Signed In');
+  });
+
+  it('DELETE tests if a user can log out', async () => {
+    const [agent] = await signUpAndLogin();
+    const resp = await agent.post('/api/v1/topSecret/users/sessions').send(mockUser);
+    expect(resp.body.message).toEqual('Successfully Signed In');
+
+    const respTwo = await agent.delete('/api/v1/topSecret/users/sessions');
+    expect(respTwo.body.message).toEqual('You have signed out')
   });
 
   afterAll(() => {
