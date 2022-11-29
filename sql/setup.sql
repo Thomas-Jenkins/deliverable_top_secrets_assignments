@@ -2,7 +2,7 @@
 -- The SQL in this file will be executed when you run `npm run setup-db`
 
 DROP TABLE IF EXISTS topSecret;
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users cascade;
 
 CREATE TABLE topSecret (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
