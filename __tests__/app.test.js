@@ -54,36 +54,45 @@ describe('users test routes', () => {
     expect(respTwo.body.message).toEqual('You have signed out');
   });
 
-  it.only('GET tests if ONLY logged in users can view the secrets', async () => {
+  it('GET tests if ONLY logged in users can view the secrets', async () => {
     const resp = await request(app).get('/api/v1/topSecret/secrets/');
     expect(resp.status).toBe(401);
     expect(resp.body.message).toEqual(
       'Please sign in before attempting to continue. Your attempt has been reported to the Administrator'
     );
+    
     const [agent] = await signUpAndLogin();
     const temp = await agent
       .post('/api/v1/topSecret/users/sessions')
       .send(mockUser);
     expect(temp.body.message).toEqual('Successfully Signed In');
+
     const respTwo = await agent.get('/api/v1/topSecret/secrets/');
     expect(respTwo.status).toBe(200);
-    expect(respTwo.body).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "created_at": "2022-11-30T17:56:05.945Z",
-          "description": "Declared when the cafeteria has run out of salsbury steak",
-          "id": "1",
-          "title": "The Chair is Against the Wall",
-        },
-        Object {
-          "created_at": "2022-11-30T17:56:05.945Z",
-          "description": "After the year 2019 all birds have been replaced by government survellience drones",
-          "id": "2",
-          "title": "Birds are not real",
-        },
-      ]
-    `);
+    expect(respTwo.body[0].description).toEqual('Declared when the cafeteria has run out of salsbury steak');
   });
+
+  it('POST should allow logged in users to post new secrets to the database', async () => {
+    const resp = await request(app).post('/api/v1/topSecret/secrets/').send({ title: 'The truth about the moon', description: 'It IS made of cheese.' });
+    expect(resp.status).toBe(401);
+    expect(resp.body.message).toEqual(
+      'Please sign in before attempting to continue. Your attempt has been reported to the Administrator'
+    );
+
+    const [agent] = await signUpAndLogin();
+    const temp = await agent
+      .post('/api/v1/topSecret/users/sessions')
+      .send(mockUser);
+    expect(temp.body.message).toEqual('Successfully Signed In');
+
+    const respTwo = await agent.post('/api/v1/topSecret/secrets/').send({ title: 'The truth about the moon', description: 'It IS made of cheese.' });
+    expect(respTwo.status).toBe(200);
+    expect(respTwo.body.title).toEqual('The truth about the moon');
+    expect(respTwo.body.description).toEqual('It IS made of cheese.');
+
+  });
+
+
 
   afterAll(() => {
     pool.end();
