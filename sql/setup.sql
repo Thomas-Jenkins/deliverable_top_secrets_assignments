@@ -16,3 +16,13 @@ CREATE TABLE users (
     email VARCHAR NOT NULL,
     password_hash VARCHAR NOT NULL
 );
+
+
+INSERT INTO topSecret (
+    title,
+    description
+)
+VALUES 
+('The Chair is Against the Wall', 'Declared when the cafeteria has run out of salsbury steak'),
+('Birds are not real', 'After the year 2019 all birds have been replaced by government survellience drones');
+
